@@ -1,3 +1,5 @@
+//Platform for Real-time Observation, Control, Tracking, and Oversight of Resources
+//PROCTOR System
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
