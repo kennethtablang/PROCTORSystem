@@ -1,0 +1,6 @@
+@PROCTORSystem_HostAddress = http://localhost:5237
+
+GET {{PROCTORSystem_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
