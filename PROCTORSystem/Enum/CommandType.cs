@@ -7,6 +7,7 @@
         Shutdown = 3,
         Restart = 4,
         StartRemoteControl = 5,
-        StopRemoteControl = 6
+        StopRemoteControl = 6,
+        Custom = 7
     }
 }
