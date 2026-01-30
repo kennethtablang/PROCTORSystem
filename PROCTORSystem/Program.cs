@@ -7,7 +7,10 @@ using Microsoft.IdentityModel.Tokens;
 using ProctorSystem.Data;
 using PROCTORSystem.Helpers;
 using PROCTORSystem.Models;
+using PROCTORSystem.Interfaces;
+using PROCTORSystem.Hubs;
 using System.Text;
+using PROCTORSystem.Data;
 
 namespace ProctorSystem
 {
@@ -74,6 +77,11 @@ namespace ProctorSystem
             //builder.Services.AddScoped<IRemoteCommandService, RemoteCommandService>();
             //builder.Services.AddScoped<IStudentService, StudentService>();
 
+            builder.Services.AddScoped<IStudentService, PROCTORSystem.Services.StudentService>();
+            builder.Services.AddScoped<IRemoteCommandService, PROCTORSystem.Services.RemoteCommandService>();
+            builder.Services.AddScoped<IAuditLogService, PROCTORSystem.Services.AuditLogService>();
+            builder.Services.AddScoped<IAuthService, PROCTORSystem.Services.AuthService>();
+            
             builder.Services.AddAutoMapper(typeof(Program));
 
             // 5. Controllers + JSON
@@ -86,7 +94,33 @@ namespace ProctorSystem
 
             // 6. Swagger
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(option =>
+            {
+                option.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Proctor API", Version = "v1" });
+                option.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Description = "Please enter a valid token",
+                    Name = "Authorization",
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer"
+                });
+                option.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type=Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id="Bearer"
+                            }
+                        },
+                        new string[]{}
+                    }
+                });
+            });
 
             // 7. CORS for local frontend dev
             builder.Services.AddCors(options =>
@@ -122,12 +156,12 @@ namespace ProctorSystem
             app.MapControllers();
 
             // SignalR hub endpoint for live student monitoring
-            //app.MapHub<MonitoringHub>("/monitoringHub");
+            app.MapHub<MonitoringHub>("/monitoringHub");
 
             // Seed initial admin/teacher data
             using (var scope = app.Services.CreateScope())
             {
-                //await ProctorSeeder.SeedAsync(scope.ServiceProvider);
+                await ProctorSeeder.SeedAsync(scope.ServiceProvider);
             }
 
             app.Run();
