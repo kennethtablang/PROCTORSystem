@@ -14,5 +14,7 @@ namespace PROCTORSystem.Models
         public string? OperatingSystem { get; set; }
         public bool IsOnline { get; set; } = false;
         public DateTime? LastSeen { get; set; }
+        
+        public string? ConnectionId { get; set; }
     }
 }
